@@ -12,6 +12,7 @@ const masto = createRestAPIClient({
     accessToken: process.env.TOKEN,
 });
 
+app.enable("trust proxy");
 app.use(bp.urlencoded({ extended: true }));
 app.use(bp.json());
 
