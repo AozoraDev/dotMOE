@@ -17,6 +17,9 @@ app.use(bp.json());
 app.get("/dotmoe", (req, res) => {
     res.redirect("https://sakurajima.moe/@dotmoe");
 });
+app.get("/dotmoe/ping", (req, res) => {
+    res.status(200).send("Pong!");
+});
 
 app.post("/dotmoe", async (req, res) => {
     if (req.headers.authorization !== process.env.AUTH) {
@@ -44,6 +47,7 @@ app.post("/dotmoe", async (req, res) => {
     msg += "\n\n";
     msg += `Posted by: [${body.author}](https://facebook.com/${fbID})`;
     msg += "\n\n";
+    // Hastags~
     msg += "#cute #moe #anime";
     
     // Then, publish it!
