@@ -25,14 +25,11 @@ app.get("/dotmoe/ping", (req, res) => {
 
 /* THE MAIN */
 const slowdown = sd({
+    windowMs: 15 * 60 * 1000,
     delayMs: 15 * 60 * 1000, // Every 15 minutes
     delayAfter: 1,
     keyGenerator: () => {
         return 69420; // Hehe.
-    },
-    onLimitReached: (req, res) => {
-        console.log("[.MOE] Delaying occurred!");
-        res.status(200).send("OK but delayed");
     }
 });
 
