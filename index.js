@@ -58,7 +58,7 @@ app.post("/dotmoe", slowdown, async (req, res) => {
     const fbID = body.id.split("_")[0]; // Facebook Page ID
     const link = getURL(body.message); // The source URL
     
-    let msg = body.message.replace(link, `[${link}](${link})`); // Need to replace the URL to MD URL
+    let msg = (link) ? body.message.replace(link, `[${link}](${link})`) : body.message; // Need to replace the URL to MD URL
     msg += "\n\n";
     msg += `Posted by: [${body.author}](https://facebook.com/${fbID})`;
     msg += "\n\n";
