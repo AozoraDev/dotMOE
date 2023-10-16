@@ -1,5 +1,6 @@
 const express = require("express");
 const bp = require("body-parser");
+const sd = require("express-slow-down");
 const fetch = require("node-fetch");
 const { createRestAPIClient } = require("masto");
 
@@ -21,7 +22,20 @@ app.get("/dotmoe/ping", (req, res) => {
     res.status(200).send("Pong!");
 });
 
-app.post("/dotmoe", async (req, res) => {
+/* THE MAIN */
+const slowdown = sd({
+    delayMs: 15 * 60 * 1000, // Every 15 minutes
+    delayAfter: 1,
+    keyGenerator: () => {
+        return 69420; // Hehe.
+    },
+    onLimitReached: (req, res) => {
+        console.log("[.MOE] Delaying occurred!");
+        res.status(200).send("OK but delayed");
+    }
+});
+
+app.post("/dotmoe", slowdown, async (req, res) => {
     if (req.headers.authorization !== process.env.AUTH) {
         res.status(401).send("Unauthorized");
         return;
@@ -59,6 +73,7 @@ app.post("/dotmoe", async (req, res) => {
     
     console.log(`[.MOE] Published with id ${status.id}!`)
 });
+/* THE END */
 
 app.listen(process.env.PORT || 8080, () => {
     console.log("[.MOE] Listening!");
