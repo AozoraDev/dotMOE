@@ -25,8 +25,8 @@ app.get("/dotmoe/ping", (req, res) => {
 
 /* THE MAIN */
 const slowdown = sd({
-    windowMs: 15 * 60 * 1000,
-    delayMs: 15 * 60 * 1000, // Every 15 minutes
+    windowMs: 20 * 60 * 1000,
+    delayMs: 20 * 60 * 1000, // Every 20 minutes
     delayAfter: 1,
     keyGenerator: () => {
         return 69420; // Hehe.
