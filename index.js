@@ -33,16 +33,9 @@ const slowdown = sd({
     }
 });
 
-app.post("/dotmoe", slowdown, async (req, res) => {
-    if (req.headers.authorization !== process.env.AUTH) {
-        res.status(401).send("Unauthorized");
-        return;
-    }
-    
+app.post("/dotmoe", checkAuthorization, slowdown, async (req, res) => {
     const body = req.body;
     console.log("[.MOE] New post from " + body.author);
-    res.status(200).send("OK");
-    
     console.log("[.MOE] Publishing...");
     
     // Upload the image first
@@ -69,7 +62,8 @@ app.post("/dotmoe", slowdown, async (req, res) => {
         mediaIds: [attachment.id]
     });
     
-    console.log(`[.MOE] Published with id ${status.id}!`)
+    console.log(`[.MOE] Published with id ${status.id}!`);
+    res.status(200).send("OK");
 });
 /* THE END */
 
@@ -85,4 +79,15 @@ function getURL(string) {
     
     if (match) return match[0];
     else return null;
+}
+
+function checkAuthorization(req, res, next) {
+    // Check if not authorized
+    if (req.headers.authorization !== process.env.AUTH) {
+        res.status(401).send("Unauthorized");
+        return;
+    }
+    
+    // If authorized, just go ahead
+    next();
 }
