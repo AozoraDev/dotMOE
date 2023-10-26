@@ -1,93 +1,67 @@
 const express = require("express");
-const bp = require("body-parser");
-const sd = require("express-slow-down");
+const crypto = require("crypto");
 const fetch = require("node-fetch");
-const { createRestAPIClient } = require("masto");
+const bp = require("body-parser");
 
-require("dotenv").config();
+require("dotenv").config(); // Read .env file
+const app = express(); // Init the express
 
-const app = express();
-const masto = createRestAPIClient({
-    url: process.env.URL,
-    accessToken: process.env.TOKEN,
-});
-
+// Some stuff again that i didnt know how it works
 app.enable("trust proxy");
 app.use(bp.urlencoded({ extended: true }));
-app.use(bp.json());
+app.use(bp.json({
+    verify: (req, res, buf) => {
+        req.rawBody = buf;
+    }
+}));
 
 app.get("/dotmoe", (req, res) => {
-    res.redirect("https://sakurajima.moe/@dotmoe");
-});
-app.get("/dotmoe/ping", (req, res) => {
-    res.status(200).send("Pong!");
-});
-
-/* THE MAIN */
-const slowdown = sd({
-    windowMs: 20 * 60 * 1000,
-    delayMs: 20 * 60 * 1000, // Every 20 minutes
-    delayAfter: 1,
-    keyGenerator: () => {
-        return 69420; // Hehe.
+    const mode = req.query["hub.mode"];
+    const token = req.query["hub.verify_token"];
+    const challenge = req.query["hub.challenge"];
+    
+    if (mode && token) {
+        if (mode === "subscribe" && token === process.env.FB_AUTH_TOKEN) {
+            console.log("[.MOE] Webhook connected!");
+            res.status(200).send(challenge);
+        } else {
+            res.sendStatus(401);
+        }
+    } else {
+        res.redirect("https://sakurajima.moe/@dotmoe");
     }
 });
-
-app.post("/dotmoe", checkAuthorization, slowdown, async (req, res) => {
-    const body = req.body;
-    console.log("[.MOE] New post from " + body.author);
-    console.log("[.MOE] Publishing...");
+app.post("/dotmoe", checkAuthorization, (req, res) => {
+    fetch(process.env.MOE_SERVICE, {
+        method: "POST",
+        headers: { ...req.headers, "Content-Type": "application/json" },
+        body: req.rawBody,
+        timeout: 10 * 1000
+    })
+    .catch(console.error);
     
-    // Upload the image first
-    const img = await fetch(body.image).then(resp => resp.blob());
-    const attachment = await masto.v2.media.create({
-        file: img
-    });
-    
-    // Now create the message
-    const fbID = body.id.split("_")[0]; // Facebook Page ID
-    const link = getURL(body.message); // The source URL
-    
-    let msg = (link) ? body.message.replace(link, `[${link}](${link})`) : body.message; // Need to replace the URL to MD URL
-    msg += "\n\n";
-    msg += `Posted by: [${body.author}](https://facebook.com/${fbID})`;
-    msg += "\n\n";
-    // Hastags~
-    msg += "#cute #moe #anime";
-    
-    // Then, publish it!
-    const status = await masto.v1.statuses.create({
-        status: msg,
-        visibility: "public",
-        mediaIds: [attachment.id]
-    });
-    
-    console.log(`[.MOE] Published with id ${status.id}!`);
-    res.status(200).send("OK");
+    // Facebook Webhook only accept 200
+    res.sendStatus(200);
 });
-/* THE END */
 
+process.on("uncaughtException", err => {
+    console.error("[.MOE] UncaughtException:", err);
+});
 app.listen(process.env.PORT || 8080, () => {
-    console.log("[.MOE] Listening!");
+    console.log("[.MOE]", "Listening!");
 });
 
 // Functions
-function getURL(string) {
-    // https://uibakery.io/regex-library/url
-    const regex = /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/g;
-    const match = string.match(regex);
-    
-    if (match) return match[0];
-    else return null;
-}
-
 function checkAuthorization(req, res, next) {
-    // Check if not authorized
-    if (req.headers.authorization !== process.env.AUTH) {
-        res.status(401).send("Unauthorized");
-        return;
+    const hmac = crypto.createHmac("sha256", process.env.FB_APP_TOKEN)
+        .update(req.rawBody)
+        .digest("hex");
+    const signature = req.headers["x-hub-signature-256"];
+    const expectedSignature = `sha256=${hmac}`;
+    
+    if (!signature || signature !== expectedSignature) {
+        return res.sendStatus(200);
     }
     
-    // If authorized, just go ahead
     next();
 }
