@@ -1,5 +1,3 @@
-The source code for [.MOE](https://sakurajima.moe/@dotmoe). Using [Zapier](https://zapier.com) for handling webhook from another social media.
+The source code for [.MOE](https://sakurajima.moe/@dotmoe). Hosted by [Alwaysdata](https://www.alwaysdata.com/en/).
 # Supported Social Media
 - Facebook
-
-More coming soon.
