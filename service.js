@@ -16,8 +16,8 @@ global.lastPostID = global.delayedPosts = 0;
 
 // Initiate middlewares
 const slowDown = calmDown({
-    windowMs: 20 * 60 * 1000,
-    delayMs: 20 * 60 * 1000, // Every 20 minutes
+    windowMs: 15 * 60 * 1000,
+    delayMs: 15 * 60 * 1000, // Every 15 minutes
     delayAfter: 1,
     keyGenerator: () => { return 69420; }
 });
