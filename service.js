@@ -15,6 +15,13 @@ const app = express();
 global.lastPostID = global.delayedPosts = 0;
 
 // Initiate middlewares
+const slowDown = calmDown({
+    windowMs: 20 * 60 * 1000,
+    delayMs: 20 * 60 * 1000, // Every 20 minutes
+    delayAfter: 1,
+    keyGenerator: () => { return 69420; }
+});
+
 app.enable("trust proxy");
 app.use(nudeParser.urlencoded({ extended: true }));
 app.use(nudeParser.json({
@@ -22,12 +29,6 @@ app.use(nudeParser.json({
         req.rawBody = buf;
     }
 }));
-const slowDown = calmDown({
-    windowMs: 20 * 60 * 1000,
-    delayMs: 20 * 60 * 1000, // Every 20 minutes
-    delayAfter: 1,
-    keyGenerator: () => { return 69420; }
-});
 
 // Initiate Mastodon
 const masto = createRestAPIClient({

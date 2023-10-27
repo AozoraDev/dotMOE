@@ -2,9 +2,11 @@ const express = require("express");
 const crypto = require("crypto");
 const fetch = require("node-fetch");
 const bp = require("body-parser");
+const { AbortController } = require("abort-controller");
 
 require("dotenv").config(); // Read .env file
 const app = express(); // Init the express
+const controller = new AbortController();
 
 // Some stuff again that i didnt know how it works
 app.enable("trust proxy");
@@ -32,12 +34,15 @@ app.get("/dotmoe", (req, res) => {
     }
 });
 app.post("/dotmoe", checkAuthorization, (req, res) => {
+    const timeout = setTimeout(() => controller.abort(), 30 * 1000);
+    
     fetch(process.env.MOE_SERVICE, {
         method: "POST",
         headers: { ...req.headers, "Content-Type": "application/json" },
         body: req.rawBody,
-        timeout: 10 * 1000
+        signal: controller.signal
     })
+    .finally(() => clearTimeout(timeout))
     .catch(console.error);
     
     // Facebook Webhook only accept 200
