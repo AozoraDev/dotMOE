@@ -34,7 +34,7 @@ app.get("/dotmoe", (req, res) => {
     }
 });
 app.post("/dotmoe", checkAuthorization, (req, res) => {
-    const timeout = setTimeout(() => controller.abort(), 30 * 1000);
+    const timeout = setTimeout(() => controller.abort(), 17 * 60 * 1000);
     
     fetch(process.env.MOE_SERVICE, {
         method: "POST",
