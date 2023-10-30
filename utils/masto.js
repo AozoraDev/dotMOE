@@ -24,7 +24,7 @@ async function updateDelayedPostsField(value) {
         
         // The delayed posts field should be in second place
         if (index === 1) {
-            obj.name = `Delayed Posts (${new Date().toUTCString()})`;
+            obj.name = "Delayed Posts";
             obj.value = String(value);
         } else {
             // URL Field is kind of broken, so uhm...
