@@ -1,12 +1,10 @@
 const express = require("express");
-const crypto = require("crypto");
 const fetch = require("node-fetch");
 const bp = require("body-parser");
-const { AbortController } = require("abort-controller");
+const { authorization } = require("./middlewares/check");
 
 require("dotenv").config(); // Read .env file
 const app = express(); // Init the express
-const controller = new AbortController();
 
 // Some stuff again that i didnt know how it works
 app.enable("trust proxy");
@@ -33,40 +31,18 @@ app.get("/dotmoe", (req, res) => {
         res.redirect("https://sakurajima.moe/@dotmoe");
     }
 });
-app.post("/dotmoe", checkAuthorization, (req, res) => {
-    const timeout = setTimeout(() => controller.abort(), 17 * 60 * 1000);
-    
+app.post("/dotmoe", authorization, (req, res) => {
     fetch(process.env.MOE_SERVICE, {
         method: "POST",
         headers: { ...req.headers, "Content-Type": "application/json" },
         body: req.rawBody,
-        signal: controller.signal
     })
-    .finally(() => clearTimeout(timeout))
     .catch(console.error);
     
     // Facebook Webhook only accept 200
     res.sendStatus(200);
 });
 
-process.on("uncaughtException", err => {
-    console.error("[.MOE] UncaughtException:", err);
-});
 app.listen(process.env.PORT || 8080, () => {
     console.log("[.MOE]", "Listening!");
 });
-
-// Functions
-function checkAuthorization(req, res, next) {
-    const hmac = crypto.createHmac("sha256", process.env.FB_APP_TOKEN)
-        .update(req.rawBody)
-        .digest("hex");
-    const signature = req.headers["x-hub-signature-256"];
-    const expectedSignature = `sha256=${hmac}`;
-    
-    if (!signature || signature !== expectedSignature) {
-        return res.sendStatus(200);
-    }
-    
-    next();
-}
