@@ -79,11 +79,6 @@ setInterval(async () => {
             attachments: await masto.resolveImages(data)
         }
         
-        // Dont proceed if data is not complete
-        if (!main.message || !main.attachments.length) {
-            return updateDelayed(parsed);
-        }
-        
         console.log(`[.MOE (Service)]`, `Publishing post from ${data.from.name}...`);
         const status = await masto.publishPost(main);
         console.log(`[.MOE (Service)]`, `Published with id ${status.id}!`);

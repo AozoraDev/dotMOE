@@ -1,3 +1,2 @@
-The source code for [.MOE](https://sakurajima.moe/@dotmoe). Hosted by [Alwaysdata](https://www.alwaysdata.com/en/).
-# Supported Social Media
-- Facebook
+## [.MOE](https://sakurajima.moe/@dotmoe)
+.MOE (dotMOE) is a mirror Mastodon page for cute and moe stuff from various social media (Facebook Page for now).

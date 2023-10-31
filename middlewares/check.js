@@ -31,6 +31,12 @@ function validation (req, res, next) {
         return res.sendStatus(200);
     }
     
+    // Check if it has message and attachments
+    if (!data.message
+    || !(data.photos || data.photo_id)) {
+        return res.sendStatus(200);
+    }
+    
     next();
 }
 
