@@ -99,4 +99,4 @@ setInterval(async () => {
     } catch (err) {
         console.error("[.MOE (Service)]", err);
     }
-}, 15 * 60 * 1000);
+}, 30 * 60 * 1000);
