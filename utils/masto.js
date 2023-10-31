@@ -59,6 +59,13 @@ async function uploadAttachments(arr) {
     return attachments;
 }
 
+async function isPostAvailable(post_id) {
+    const post = await fetch(`https://graph.facebook.com/v18.0/${post_id}?access_token=${process.env.MOE_TOKEN}`)
+    .then(res => res.json());
+    
+    return (!post || post.error) ? false : true;
+}
+
 async function publishPost(obj) {
     const attachments = await uploadAttachments(obj.attachments);
     
@@ -119,5 +126,6 @@ module.exports = {
     updateDelayedPostsField,
     publishPost,
     uploadAttachments,
-    resolveImages
+    resolveImages,
+    isPostAvailable
 }

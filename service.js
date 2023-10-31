@@ -72,6 +72,12 @@ setInterval(async () => {
         const data = parsed[0];
         if (!data) return; // If data is null
         
+        // Check if the post still available
+        if (!(await masto.isPostAvailable(data.post_id))) {
+            console.log("[.MOE (Service)]", "Post is not available. Skipping.");
+            return updateDelayed(parsed);
+        }
+        
         const main = {
             author: data.from.name,
             author_link: "https://facebook.com/" + data.from.id,
