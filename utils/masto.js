@@ -10,7 +10,7 @@ const client = createRestAPIClient({
     accessToken: process.env.TOKEN,
 });
 
-const dotMOEID = 136662136203757;
+const dotMOEID = "136662136203757";
 const visibility = "direct";
 
 async function updateDelayedPostsField(value) {
@@ -69,15 +69,18 @@ async function isPostAvailable(post_id) {
 
 async function publishPost(obj) {
     // AOTM
-    const aotm = (fs.existsSync("../aotm.json")) ? JSON.parse(fs.readFileSync("../aotm.json")) : {};
+    const aotm = JSON.parse(fs.readFileSync(process.cwd() + "/aotm.json"));
     const attachments = await uploadAttachments(obj.attachments);
     
     let message = toMarkdown(obj.message);
     message += "\n\n";
+    
     if (aotm.author && obj.author_id == dotMOEID) message += `Artist of The Month (AOTM): [${aotm.author}](${aotm.author_link})\n`;
+    
     message += `Posted by: [${obj.author}](${obj.author_link})`;
     message += "\n\n";
     message += "#cute #moe #anime";
+    
     if (aotm.author && obj.author_id == dotMOEID) message += " #aotm";
     
     const status = await client.v1.statuses.create({
