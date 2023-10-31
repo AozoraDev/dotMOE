@@ -80,6 +80,7 @@ setInterval(async () => {
         
         const main = {
             author: data.from.name,
+            author_id: data.from.id,
             author_link: "https://facebook.com/" + data.from.id,
             message: data.message,
             attachments: await masto.resolveImages(data)
