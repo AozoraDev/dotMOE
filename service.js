@@ -81,22 +81,24 @@ setInterval(async () => {
         
         // Dont proceed if data is not complete
         if (!main.message || !main.attachments.length) {
-            parsed.shift(); // Remove the first in array.
-            fs.writeFileSync(path, JSON.stringify(parsed, null, 2));
-            masto.updateDelayedPostsField(parsed.length);
-            
-            return;
+            return updateDelayed(parsed);
         }
         
         console.log(`[.MOE (Service)]`, `Publishing post from ${data.from.name}...`);
         const status = await masto.publishPost(main);
         console.log(`[.MOE (Service)]`, `Published with id ${status.id}!`);
         
-        parsed.shift(); // Remove the first in array.
-        fs.writeFileSync(path, JSON.stringify(parsed, null, 2));
-        
-        masto.updateDelayedPostsField(parsed.length);
+        updateDelayed(parsed)
     } catch (err) {
         console.error("[.MOE (Service)]", err);
     }
 }, 30 * 60 * 1000);
+
+// Functions
+function updateDelayed(parsed) {
+    const path = "./delayed.json";
+    
+    parsed.shift(); // Remove the first in array.
+    fs.writeFileSync(path, JSON.stringify(parsed, null, 2));
+    masto.updateDelayedPostsField(parsed.length);
+}
