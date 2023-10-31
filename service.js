@@ -65,7 +65,7 @@ setInterval(async () => {
         
         // Check if the post still available
         if (!(await masto.isPostAvailable(data.post_id))) {
-            console.log("[.MOE (Service)]", "Post is not available. Skipping.");
+            console.log("[.MOE (Service)]", `Delayed post from ${data.from.name} is not available now. Skipping.`);
             return updateDelayed(parsed);
         }
         

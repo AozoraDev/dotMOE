@@ -11,7 +11,7 @@ const client = createRestAPIClient({
 });
 
 const dotMOEID = "136662136203757";
-const visibility = "direct";
+const visibility = "public";
 
 async function updateDelayedPostsField(value) {
     // Get all the fields
