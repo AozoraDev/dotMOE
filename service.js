@@ -30,10 +30,6 @@ app.post("/", check.authorization, check.validation, (req, res) => {
     
     try {
         console.log("[.MOE (Service)]", `New post from ${data.from.name}`);
-        if (!fs.existsSync(path)) {
-            // Initiate new file if not exist
-            fs.writeFileSync(path, JSON.stringify([]));
-        }
         
         const arr = JSON.parse(fs.readFileSync(path, { encoding: "utf8" }));
         arr.push(data);
@@ -62,11 +58,6 @@ setInterval(async () => {
     const path = "./delayed.json";
     
     try {
-        if (!fs.existsSync(path)) {
-            // Initiate new file if not exist
-            fs.writeFileSync(path, JSON.stringify([]));
-        }
-        
         // Get the first delayed post
         let parsed = JSON.parse(fs.readFileSync(path, { encoding: "utf8" }));
         const data = parsed[0];
