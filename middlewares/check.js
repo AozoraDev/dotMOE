@@ -26,7 +26,7 @@ function validation (req, res, next) {
     : {};
     
     if ((data.field !== "feed" && data.verb !== "add")
-    // TODO: Validate if its really a post ID
+    || !data.post_id // Status and photo usually have post id.
     || (global.lastPostID === data.post_id)) { // Prevent duplication
         return res.sendStatus(200);
     }
