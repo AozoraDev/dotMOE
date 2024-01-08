@@ -4,6 +4,7 @@
   "description": "A mirror page for cute and moe stuff from various social media",
   "main": "index.js",
   "scripts": {
+    "setup": "node setup.js",
     "start": "node index.js",
     "start-service": "node service.js",
     "test": "echo \"Error: no test specified\" && exit 1"
