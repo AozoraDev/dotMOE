@@ -40,6 +40,7 @@ app.get(endpoint, (req, res) => {
     const challenge = req.query["hub.challenge"];
     
     if (mode && token) {
+        // AUTH_TOKEN env is your random numbers for authenticating webhook
         if (mode === "subscribe" && token === process.env.AUTH_TOKEN) {
             console.log("Webhook registered!");
             res.status(200).send(challenge);
