@@ -76,7 +76,7 @@ app.post(endpoint, check.authorization, check.validation, async (req, res) => {
         author_id: data.from.id,
         author_link: "https://facebook.com/" + data.from.id,
         message: data.message,
-        attachments: await masto.resolveImages(data)
+        attachments: await masto.resolveAttachments(req)
     }
     
     arr.push(main); // Push the post data to the array

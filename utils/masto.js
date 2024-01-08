@@ -19,7 +19,7 @@ const client = createRestAPIClient({
 });
 
 /** @const {string} visibility - Post visibility for Mastodon post. Can be "public", "private", "direct", or "unlisted" */
-const visibility = "direct";
+const visibility = "public";
 
 /**
  * Upload attachment(s) to the Mastodon instance
