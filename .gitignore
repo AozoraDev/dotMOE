@@ -130,5 +130,5 @@ dist
 .pnp.*
 
 delayed.json
-database.db
 aotm.json
+database.db
