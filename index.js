@@ -16,7 +16,7 @@ require("./utils/console");
 require("dotenv").config();
 
 app.enable("trust proxy"); // Idk
-app.use(express.urlencoded()); // Idk too
+app.use(express.urlencoded({ extended: true })); // Idk too
 app.use(express.json({ // This one for get the response body
     verify: (req, res, buf) => {
         // We need the raw body (buffer, actually) to verifying the received post.
