@@ -105,8 +105,10 @@ async function resolveAttachments(req) {
         // Just return the empty array if error happends
         if (!result || result.error) return resolved;
         
-        /** @const {Array} attachments - All attachments from current Facebook post */
-        const attachments = result.attachments.data[0].subattachments.data;
+        /** @const {Array} attachments - First 4 attachments from current Facebook post */
+        const attachments = result.attachments.data[0]
+            .subattachments.data
+            .slice(0, 4);
         
         // Looping for getting the (hopefully) higher quality photos
         for (const attachment of attachments) {
