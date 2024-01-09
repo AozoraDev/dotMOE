@@ -1,21 +1,21 @@
 {
   "name": "dotmoe",
-  "version": "1.4",
+  "version": "1.5",
   "description": "A mirror page for cute and moe stuff from various social media",
   "main": "index.js",
   "scripts": {
+    "setup": "node setup.js",
     "start": "node index.js",
     "start-service": "node service.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "AozoraDev",
+  "author": "HaruByte",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.20.2",
+    "better-sqlite3": "^9.2.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "masto": "^6.3.1",
-    "node-fetch": "^2.7.0"
+    "masto": "^6.3.1"
   }
 }

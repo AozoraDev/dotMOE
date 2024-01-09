@@ -1,97 +1,37 @@
-const express = require("express");
+/**
+ * This is for posting the delayed post to the Mastodon account.
+ * Must be executed using cronjob at a reasonable interval determined by the Mastodon instance.
+ * 
+ * @file
+ * @author AozoraDev
+ */
+
 const fs = require("fs");
 const masto = require("./utils/masto");
+require("./utils/console");
 
-// Middlewares
-const check = require("./middlewares/check");
-const nudeParser = require("body-parser");
-
-// And stuff
-require("dotenv").config();
-const app = express();
+/** @const {string} path - Path to the list of delayed posts */
 const path = "./delayed.json";
+/** @const {Array} posts - An array of delayed posts. The value will be empty array if the file is not exist */
+const posts = (fs.existsSync(path))
+    ? JSON.parse(fs.readFileSync(path, { encoding: "utf8" }))
+    : [];
+/** @const {?Object} data - First delayed post data */
+const data = posts[0];
 
-// Global variable
-global.lastPostID = 0;
-
-app.enable("trust proxy");
-app.use(nudeParser.urlencoded({ extended: true }));
-app.use(nudeParser.json({
-    verify: (req, res, buf) => {
-        req.rawBody = buf;
-    }
-}));
-
-// Main service
-app.get("/", (req, res) => res.sendStatus(200));
-
-app.post("/", check.authorization, check.validation, (req, res) => {
-    const data = req.body.entry[0].changes[0].value;
+(async () => {
+    // Exit the program if data is empty
+    if (!data) process.exit(0);
     
     try {
-        console.log("[.MOE (Service)]", `New post from ${data.from.name}`);
-        
-        const arr = JSON.parse(fs.readFileSync(path, { encoding: "utf8" }));
-        arr.push(data);
-        fs.writeFileSync(path, JSON.stringify(arr, null, 2));
-        
-        global.lastPostID = data.post_id; // Prevent duplication
-        masto.updateDelayedPostsField(arr.length);
+        console.log(`Publishing post from ${data.author}...`);
+        const status = await masto.publishPost(data);
+        console.log(`Published with id ${status.id}!`);
     } catch (err) {
-        console.error("[.MOE (Service)]", err);
+        console.error("Publishing failed. This post will be skipped.");
     }
     
-    res.sendStatus(200);
-});
-
-process.on("uncaughtException", err => {
-    console.error("[.MOE (Service)] UncaughtException:", err);
-});
-
-// Alwaysdata Service only accept IPv6
-app.listen(process.env.PORT || 8300, "::", () => {
-    console.log("[.MOE (Service)] Listening!")
-});
-
-// Delay postting every 15 minutes.
-setInterval(async () => {
-    const path = "./delayed.json";
-    
-    try {
-        // Get the first delayed post
-        let parsed = JSON.parse(fs.readFileSync(path, { encoding: "utf8" }));
-        const data = parsed[0];
-        if (!data) return; // If data is null
-        
-        // Check if the post still available
-        if (!(await masto.isPostAvailable(data.post_id))) {
-            console.log("[.MOE (Service)]", `Delayed post from ${data.from.name} is not available now. Skipping.`);
-            return updateDelayed(parsed);
-        }
-        
-        const main = {
-            author: data.from.name,
-            author_id: data.from.id,
-            author_link: "https://facebook.com/" + data.from.id,
-            message: data.message,
-            attachments: await masto.resolveImages(data)
-        }
-        
-        console.log(`[.MOE (Service)]`, `Publishing post from ${data.from.name}...`);
-        const status = await masto.publishPost(main);
-        console.log(`[.MOE (Service)]`, `Published with id ${status.id}!`);
-        
-        updateDelayed(parsed)
-    } catch (err) {
-        console.error("[.MOE (Service)]", err);
-    }
-}, 30 * 60 * 1000);
-
-// Functions
-function updateDelayed(parsed) {
-    const path = "./delayed.json";
-    
-    parsed.shift(); // Remove the first in array.
-    fs.writeFileSync(path, JSON.stringify(parsed, null, 2));
-    masto.updateDelayedPostsField(parsed.length);
-}
+    const newPosts = posts.slice(1) // Remove the first object in posts array
+    fs.writeFileSync(path, JSON.stringify(newPosts, null, 2)); // Save it again as file
+    process.exit(0); // Fin
+})();
