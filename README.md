@@ -1,19 +1,22 @@
 ## [.MOE](https://sakurajima.moe/@dotmoe)
 <img src="https://raw.githubusercontent.com/HaruByte/assets/main/dotMOE/dotMOE.png" align="right" width="100" height="100">
-.MOE (dotMOE) is a Mastodon account that focuses on providing cute and moe images from various social media. The way .MOE works is by mirroring post from other social media account (such as Facebook Page) that are registered to be posted to the .MOE account.
+.MOE (dotMOE) is a Mastodon account that focuses on providing cute and moe images from various social media.
+
+.MOE is powered by registered social media accounts referred to as "Provider". A provider simply posts on their account and the post will be forwarded to the Mastodon .MOE account.
 
 ## Supported Platforms
-- Facebook
+- Facebook Page
 
 Other platforms will be supported if there is demand.
 
 ## Become a provider
-Provider is a social media account registered for .MOE. To become a provider, please read the rules below:
+To become a provider, please read the rules below:
+- Read and understand the [server rules of sakurajima.moe](https://blog.sakurajima.moe/server-rules/) first.
 - A social media account should focus on posting cute and moe image.
-- A post should include the original source link to the image.
-- Posting NSFW, lewd, overly seductive, or featuring overly revealing clothing is prohibited.
+- Post should include the source link to the original image.
+- Posting NSFW, lewd, or overly seductive image is prohibited.
 
-If you have read everything, you can direct message to [.MOE](https://sakurajima.moe/@dotmoe).
+If you have understood the rules, please direct message [.MOE](https://sakurajima.moe/@dotmoe) with a link to the social media account you wish to register.
 
 ---
 
