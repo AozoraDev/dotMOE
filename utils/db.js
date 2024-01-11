@@ -13,7 +13,7 @@ db.prepare("CREATE TABLE IF NOT EXISTS Token (id VARCHAR(20) PRIMARY KEY, token 
 /**
  * Get saved access token from page ID
  * 
- * @param {number} id - Facebook Page ID
+ * @param {string} id - Facebook Page ID
  * @returns {string} Access token
  */
 function getToken(id) {
@@ -26,7 +26,7 @@ function getToken(id) {
 /**
  * Insert/update token from page ID 
  * 
- * @param {number} id - Facebook Page ID
+ * @param {string} id - Facebook Page ID
  * @param {string} token - Access Token
  * @returns {void}
  */
