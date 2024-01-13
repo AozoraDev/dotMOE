@@ -20,7 +20,7 @@ To become a provider, please read the rules below:
 
 If you have understood the rules, please direct message [.MOE](https://sakurajima.moe/@dotmoe) with a link to the social media account you wish to register.
 
-(*Non-suggestive swimsuit are not prohibited. What is prohibited is like little girl in swimsuit or showing too much body curves)
+(*Non-suggestive swimsuit are not prohibited)
 
 ---
 
