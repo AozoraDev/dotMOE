@@ -58,8 +58,9 @@ function validation (req, res, next) {
         return res.sendStatus(200);
     }
     
-    // Make sure the received post has caption and attachments (images)
-    if (!data.message || !(data.photos || data.photo_id)) {
+    // Make sure the received post has url in the caption and attachments (images)
+    const regex = /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/g;
+    if (!String(data.message).match(regex) || !(data.photos || data.photo_id)) {
         return res.sendStatus(200);
     }
     
