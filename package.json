@@ -1,6 +1,6 @@
 {
   "name": "dotmoe",
-  "version": "1.5",
+  "version": "1.6",
   "description": "A mirror page for cute and moe stuff from various social media",
   "main": "index.js",
   "scripts": {
