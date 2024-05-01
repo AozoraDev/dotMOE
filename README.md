@@ -48,3 +48,9 @@ SOFTWARE.
 
 ### This project is hosted by
 <a href="https://alwaysdata.com"><img src="https://www.alwaysdata.com/static/svg/alwaysdata-logo-pink.svg" width="200" height="auto" alt="Alwaysdata"></a>
+
+### Written in
+<img src="https://raw.githubusercontent.com/SAWARATSUKI/ServiceLogos/main/TypeScript/TypeScript.png" width="250" height="auto">
+
+### And run using
+<img src="https://raw.githubusercontent.com/Aikoyori/ProgrammingVTuberLogos/main/Bun/BunLogo.png" width="250" height="auto">
