@@ -6,11 +6,24 @@
  * @author AozoraDev
  */
 
+import path from "path";
+import { readdirSync } from "node:fs";
 import { Database } from "bun:sqlite";
 import type { Post } from "types";
+
 const db = new Database("database.db");
 
-// Some initiation stuff if the databasse is empty
+// Some initiation stuff if the databasse is empty //
+// The SQL code below is version 1 but migration code will take care of new database format //
+
+// Version
+db.run(
+    `CREATE TABLE IF NOT EXISTS Version (
+        id INTEGER PRIMARY KEY,
+        version INTEGER
+    );
+    INSERT OR IGNORE INTO Version (id, version) VALUES (1, 1)`
+);
 // Token table //
 db.query(
     `CREATE TABLE IF NOT EXISTS Token (
@@ -28,6 +41,49 @@ db.query(
         attachments TEXT
     )`
 ).run();
+
+// Check migration before starting everything
+const migFiles = readdirSync(path.join(__dirname, "migrations"));
+migFiles.sort((a, b) => parseInt(a.split(".")[0]) - parseInt(b.split(".")[0])); // Sort it
+const lastestMig = parseInt(migFiles.at(-1) as string); // Will always have value
+
+if (getDBVersion() < lastestMig) {
+    console.warn(`Database version is obselete (${getDBVersion()}). Will start migration now!`);
+
+    // TODO:
+    // Should be read the range between current db version and the latest migration file.
+    // But since the migration file here is just one, i don't need to think about it for now.
+    for (const mig of migFiles) {
+        console.log(`Executing ${mig}...`);
+
+        const update = await import(path.join(__dirname, "migrations", mig));
+        update.default();
+    }
+
+    console.log(`Database updated to version ${getDBVersion()}!`);
+}
+
+/**
+ * Get database version
+ */
+function getDBVersion() {
+    const version = db.query(
+        `SELECT version FROM Version`
+    ).get() as { version: number };
+
+    return version.version;
+}
+
+/**
+ * Update database version
+ * 
+ * @param version - New database version
+ */
+export function updateDBVersion(version: number) {
+    db.prepare(
+        `UPDATE Version SET version=? WHERE id=1`
+    ).run(version);
+}
 
 /**
  * Get saved access token from page ID
@@ -83,8 +139,8 @@ export function getFirstPost() {
         .get() as (Post | null);
     
     // Delete the data after fetching
-    if (data) db.prepare(`DELETE FROM DelayedPosts WHERE post_id = ?`)
-        .run(data.post_id);
+    if (data) db.prepare(`DELETE FROM DelayedPosts WHERE id = ?`)
+        .run(data.id);
 
     return data;
 }
