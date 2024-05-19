@@ -43,11 +43,12 @@ db.query(
 ).run();
 
 // Check migration before starting everything
-const migFiles = readdirSync(path.join(__dirname, "migrations"));
+const migPath = path.join(process.cwd(), "db-migrations")
+const migFiles = readdirSync(migPath);
 migFiles.sort((a, b) => parseInt(a.split(".")[0]) - parseInt(b.split(".")[0])); // Sort it
-const lastestMig = parseInt(migFiles.at(-1) as string); // Will always have value
 
-if (getDBVersion() < lastestMig) {
+const latestMig = parseInt(migFiles.at(-1) as string); // Will always have value
+if (getDBVersion() < latestMig) {
     console.warn(`Database version is obselete (${getDBVersion()}). Will start migration now!`);
 
     // TODO:
@@ -56,7 +57,7 @@ if (getDBVersion() < lastestMig) {
     for (const mig of migFiles) {
         console.log(`Executing ${mig}...`);
 
-        const update = await import(path.join(__dirname, "migrations", mig));
+        const update = await import(path.join(migPath, mig));
         update.default();
     }
 
