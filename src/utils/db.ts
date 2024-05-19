@@ -136,7 +136,7 @@ export function savePost(post: Post) {
  */
 export function getFirstPost() {
     const data = db.prepare("SELECT * FROM DelayedPosts")
-        .get() as (Post | null);
+        .get() as (Post & { id: number } | null);
     
     // Delete the data after fetching
     if (data) db.prepare(`DELETE FROM DelayedPosts WHERE id = ?`)
