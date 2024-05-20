@@ -17,12 +17,7 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-// Use Graph Explorer to get page access token (long-lived version).
-// Following permission must be added:
-// [public_profile, pages_manage_metadata, pages_read_engagement, pages_show_list]
-// After that, open (Access Token Debugger)[https://developers.facebook.com/tools/debug/access_token], enter your access token page, click "Debug"
-// and then click "Extend Access Token".
-// New long-lived access token should be appear below the button.
+// https://developers.facebook.com/docs/facebook-login/guides/access-tokens/get-long-lived/
 const token = await rl.question("Facebook Page's access token: ");
 rl.close();
 

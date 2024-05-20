@@ -32,7 +32,7 @@ bun install
 ```
 bun run dev:setup
 ```
-5. Then enter your Facebook page token. [Check this out](https://github.com/Volkadot/dotMOE/blob/24c4ba5b80c044b42181910a4bc5f7664221eb16/src/setup.ts#L20C1-L25C66) for a tutorial on how to get page token.
+5. Then enter your Facebook page token. [Check this out](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/get-long-lived/) for a tutorial on how to get page token.
 6. Now you are ready to go!
 
 ## License
