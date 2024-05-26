@@ -8,10 +8,13 @@
 
 import Zip from "adm-zip";
 import path from "path";
+import sizeOf from "image-size";
 import { $ } from "bun";
 import { existsSync } from "fs";
 import { tmpdir } from "node:os";
 import { rm, rename, mkdtemp } from "fs/promises";
+
+import type { ISizeCalculationResult } from "image-size/dist/types/interface";
 
 interface Configs {
     /** The quality of compression. Default is 80 */
@@ -29,6 +32,8 @@ export default class CWebP {
     private cwebpPath: string;
     /** Configuration */
     private configs: Configs;
+    /** Original size of the image */
+    private size: ISizeCalculationResult;
 
     /** Path to the downloaded webp binaries */
     private downloadedPath = path.join(process.cwd(), "webp-bin");
@@ -51,8 +56,19 @@ export default class CWebP {
         }
 
         this.buf = buf;
+        this.size = sizeOf(new Uint8Array(buf));
         this.configs = { ...defaultConfigs, ...configs }
         this.cwebpPath = this.configs.cwebpPath || Bun.which("cwebp") || path.join(process.cwd(), "webp", "bin", "cwebp");
+    }
+
+    /** Get image original width */
+    public getWidth() {
+        return this.size.width || 0;
+    }
+
+    /** Get image original height */
+    public getHeight() {
+        return this.size.height || 0;
     }
 
     /** A lil bit of process before executing */
@@ -135,7 +151,7 @@ export default class CWebP {
 
         return output;
     }
-    
+
     /** Get the output as Uint8Array */
     public async toUint8Array() {
         await this.preExecute();
