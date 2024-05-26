@@ -9,11 +9,7 @@
  */
 
 import { createRestAPIClient, type mastodon } from "masto";
-import { $ } from "bun";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import sizeOf from "image-size";
+import CWebP from "utils/cwebp";
 
 import type { Post } from "types";
 
@@ -35,17 +31,8 @@ const visibility = Bun.env["VISIBILITY"] as (mastodon.v1.StatusVisibility | unde
 export async function uploadImages(urls: string[]) {
     /** All uploaded images IDs */
     const attachments: string[] = [];
-    /** Temp directory for saving the image(s) */
-    const tempdir = await mkdtemp(path.join(tmpdir(), "dotmoe-"))
-        .catch(console.error) as (string | undefined);
-
-    // Return the empty attachments if tempdir is failed to be generated
-    if (!tempdir) return attachments;
     
     for (const url of urls) {
-        // Fetch Image file from attachment url
-        const tempFile = path.join(tempdir, `image-${attachments.length}`);
-
         console.log(`Fetching ${url}...`);
         const img = await fetch(url)
             .then(res => res.arrayBuffer())
@@ -57,25 +44,24 @@ export async function uploadImages(urls: string[]) {
             continue;
         }
 
-        // Save the image to temp folder
-        await Bun.write(tempFile, img);
-        // Optimize the image
-        await optimizeImage(tempFile);
+        // Optimizing the image...
+        const webp = new CWebP(img);
+        if (webp.getWidth() > 3840) { // Mastodon has image size limit.
+            webp.resize(2000, 0); // Resize the width to 2000 if the image is oversize
+        }
+        const webpImage = await webp.toArrayBuffer();
 
         // And then upload it
         console.log("Uploading image to Mastodon instance...");
         await client.v2.media.create({
             /** @todo Error need to be ignored since Blob in Bun and Node is different */
             // @ts-ignore
-            file: new Blob([Bun.file(tempFile + ".webp")])
+            file: new Blob([webpImage])
         }).then(res => {
             console.log("Image uploaded with ID: " + res.id);
             attachments.push(res.id);
         }).catch(console.error);
     }
-
-    // Delete the temp dir
-    await rm(tempdir, { recursive: true, force: true })
 
     return attachments;
 }
@@ -108,37 +94,5 @@ export async function publishPost(post: Post) {
         return status;
     } catch (err) {
         throw err;
-    }
-}
-
-/**
- * Optimize an image to webp to reduce file size.
- * After the process is complete, the image file will be saved in the same path with ".webp" added to the file name.
- * 
- * @param imagePath - Path to the image file
- */
-async function optimizeImage(imagePath: string) {
-    // Check if "cwebp" command exist. If not exist, don't optimize the image
-    if (!Bun.which("cwebp")) return console.warn("\"cwebp\" command not found. Optimizing process is skipped.");
-
-    const filename = path.basename(imagePath);
-    console.log(`Optimizing "${filename}"...`);
-
-    /** Check if the image is too oversize for Mastodon too handle */
-    const isImageOversize = (sizeOf(imagePath).width as number) > 3840;
-    if (isImageOversize) console.log(`"${filename} is oversize! Will reduce the image size too."`);
-
-    // Convert the image to webp (and reduce the image size if possible)
-    const options = [
-        "-q 80",
-        `-o "${imagePath}.webp"`
-    ];
-    if (isImageOversize) options.push("-resize 2000 0");
-
-    const { exitCode } = await $`cwebp "${imagePath}" ${{raw: options.join(" ")}}`;
-    if (exitCode === 0) {
-        console.log(`Optimizing "${filename}" successfully!`);
-    } else {
-        console.error(`Optimizing "${filename}" failed! Will use original image instead.`);
     }
 }
