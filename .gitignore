@@ -177,6 +177,7 @@ dist
 # Custom .MOE private stuff
 database.db
 database.db-journal
+/*webp*
 
 # Dist
 dist/
