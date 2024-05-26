@@ -80,27 +80,7 @@ export default class CWebP {
             await this.downloadExecutable();
 
             console.log("Extracting binaries...");
-            if (process.platform == "linux" || process.platform == "darwin") { // Linux and Mac
-
-                if (!Bun.which("tar")) throw new Error("tar executable not found. That's weird... are you even sure that your OS is Unix-like?");
-                await $`tar -xzf "${this.downloadedPath}"`.quiet();
-
-            } else if (process.platform == "win32") { // Windows
-
-                const zip = new Zip(this.downloadedPath);
-                zip.extractAllTo(process.cwd());
-                
-            } else { // Nothing else
-                throw new Error("WebP binaries not available for your platform!");
-            }
-
-            // Remove the downloaded binaries
-            await rm(this.downloadedPath);
-            // After that, rename the extracted folder
-            await rename(
-                path.join(process.cwd(), `libwebp-${this.getWebPVersion()}-${this.platform}-${this.arch}`),
-                path.join(process.cwd(), "webp")
-            );
+            await this.extractExecutable();
 
             // Update path
             this.cwebpPath = path.join(process.cwd(), "webp", "bin", "cwebp");
@@ -242,6 +222,31 @@ export default class CWebP {
         } catch (e) {
             throw e;
         }
+    }
+
+    /** Extract the downloaded binaries */
+    private async extractExecutable() {
+        if (process.platform == "linux" || process.platform == "darwin") { // Linux and Mac
+
+            if (!Bun.which("tar")) throw new Error("tar executable not found. That's weird... are you even sure that your OS is Unix-like?");
+            await $`tar -xzf "${this.downloadedPath}"`.quiet();
+
+        } else if (process.platform == "win32") { // Windows
+
+            const zip = new Zip(this.downloadedPath);
+            zip.extractAllTo(process.cwd());
+            
+        } else { // Nothing else
+            throw new Error("WebP binaries not available for your platform!");
+        }
+
+        // Remove the downloaded binaries
+        await rm(this.downloadedPath);
+        // After that, rename the extracted folder
+        await rename(
+            path.join(process.cwd(), `libwebp-${this.getWebPVersion()}-${this.platform}-${this.arch}`),
+            path.join(process.cwd(), "webp")
+        );
     }
 
     /** Get WebP version */
