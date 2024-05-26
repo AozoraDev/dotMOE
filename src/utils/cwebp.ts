@@ -135,6 +135,14 @@ export default class CWebP {
 
         return output;
     }
+    
+    /** Get the output as Uint8Array */
+    public async toUint8Array() {
+        await this.preExecute();
+        const output = await this.execute();
+
+        return new Uint8Array(output);
+    }
 
     /** Get the output as Buffer */
     public async toBuffer() {
