@@ -10,9 +10,9 @@ import Zip from "adm-zip";
 import path from "path";
 import sizeOf from "image-size";
 import { $ } from "bun";
-import { existsSync } from "fs";
 import { tmpdir } from "node:os";
-import { rm, rename, mkdtemp } from "fs/promises";
+import { existsSync, mkdtempSync, rmSync } from "fs";
+import { rm, rename } from "fs/promises";
 
 import type { ISizeCalculationResult } from "image-size/dist/types/interface";
 
@@ -35,12 +35,15 @@ export default class CWebP {
     /** Original size of the image */
     private size: ISizeCalculationResult;
 
-    /** Path to the downloaded webp binaries */
-    private downloadedPath = path.join(process.cwd(), "webp-bin");
     /** Current platform's name */
     private platform?: ("windows" | "mac" | "linux");
     /** Current platform's architecture */
     private arch?: ("aarch64" | "arm64" | "x86-64");
+
+    /** Path to the downloaded webp binaries */
+    private downloadedPath = path.join(process.cwd(), "webp-bin");
+    /** Temporary dir for temporary saving converted image */
+    private tempDir = mkdtempSync(path.join(tmpdir(), "cwebp-"));
 
     /**
      * Create new instance for converting image to webp
@@ -93,12 +96,10 @@ export default class CWebP {
         // Add exe to the executable if windows
         if (this.platform == "windows") this.cwebpPath += ".exe";
         
-        /** Temporary dir for temporary saving converted image */
-        const temp = await mkdtemp(path.join(tmpdir(), "cwebp-"));
         /** Path to the temporary image */
-        const imagePath = path.join(temp, "image");
+        const imagePath = path.join(this.tempDir, "image");
         /** Path to the temporary converted image */
-        const webpImagePath = path.join(temp, "image.webp")
+        const webpImagePath = path.join(this.tempDir, "image.webp");
         
         // Write the buffer to file
         try {
@@ -115,43 +116,22 @@ export default class CWebP {
             `-o "${webpImagePath}"`
         ]
         await $`${{ raw: args.join(" ") }}`;
-
-        // Get the ArrayBuffer of the converted file
-        const buf = await Bun.file(webpImagePath).arrayBuffer();
-        // And remove the temp dir now
-        await rm(temp, { recursive: true });
-
-        return buf;
     }
 
-    /** Get the output as ArrayBuffer */
-    public async toArrayBuffer() {
+    /** Get the output as BunFile */
+    public async toBunFile() {
         await this.preExecute();
-        const output = await this.execute();
+        await this.execute();
 
-        return output;
+        return Bun.file(path.join(this.tempDir, "image.webp"));
     }
 
-    /** Get the output as Uint8Array */
-    public async toUint8Array() {
-        await this.preExecute();
-        const output = await this.execute();
-
-        return new Uint8Array(output);
-    }
-
-    /** Get the output as Buffer */
-    public async toBuffer() {
-        const output = await this.toArrayBuffer();
-
-        return Buffer.from(output);
-    }
-
-    /** Get the output as Blob */
-    public async toBlob() {
-        const output = await this.toArrayBuffer();
-
-        return new Blob([output], { type: "image/webp" });
+    /**
+     * Remove the temporary file.
+     * It's recommended to call this function after done using BunFile.
+     */
+    public close() {
+        rmSync(this.tempDir, { recursive: true });
     }
 
     /////////////

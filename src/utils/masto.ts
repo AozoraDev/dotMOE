@@ -49,7 +49,7 @@ export async function uploadImages(urls: string[]) {
         if (webp.getWidth() > 3840) { // Mastodon has image size limit.
             webp.resize(2000, 0); // Resize the width to 2000 if the image is oversize
         }
-        const webpImage = await webp.toArrayBuffer();
+        const webpImage = await webp.toBunFile();
 
         // And then upload it
         console.log("Uploading image to Mastodon instance...");
@@ -59,6 +59,8 @@ export async function uploadImages(urls: string[]) {
             file: new Blob([webpImage])
         }).then(res => {
             console.log("Image uploaded with ID: " + res.id);
+
+            webp.close();
             attachments.push(res.id);
         }).catch(console.error);
     }
