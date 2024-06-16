@@ -10,7 +10,7 @@
 
 import readline from "node:readline/promises";
 import { setToken } from "utils/db";
-import type { Me } from "handlers/facebook";
+import type { Me } from "types";
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -22,19 +22,17 @@ const token = await rl.question("Facebook Page's access token: ");
 rl.close();
 
 if (!token) {
-    console.error("Input is empty. Exitting...");
-    process.exit(1);
+    throw new Error("Token is not exist.");
 }
 
 console.log("Verifying access token...");
 const me = await fetch("https://graph.facebook.com/v18.0/me?access_token=" + token)
-    .then(res => res.json())
-    .catch(console.error) as (Me | undefined);
+    .then(res => res.json() as Promise<Me>)
+    .catch(console.error);
 
 // Exit if token is invalid or error
 if (!me || me.error) {
-    console.error("Token is not valid or there's a problem with your request. Exiting...");
-    process.exit(1);
+    throw new Error(me?.error?.message || "Failed to fetch the information.");
 }
 
 // Verified. Save the id and the token to the database

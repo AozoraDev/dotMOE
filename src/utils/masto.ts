@@ -10,12 +10,12 @@
 
 import { createRestAPIClient, type mastodon } from "masto";
 import CWebP from "utils/cwebp";
-
+import { dotMOE } from "enums";
 import type { Post } from "types";
 
 // Mastodon client
 const client = createRestAPIClient({
-    url: "https://sakurajima.moe",
+    url: dotMOE.INSTANCE_URL,
     accessToken: Bun.env["TOKEN"]
 });
 
@@ -36,7 +36,7 @@ export async function uploadImages(urls: string[]) {
         console.log(`Fetching ${url}...`);
         const img = await fetch(url)
             .then(res => res.arrayBuffer())
-            .catch(console.error) as (ArrayBuffer | undefined);
+            .catch(console.error);
         
         // Skip current if fetching Blob is failed or temp folder is failed to be created.
         if (!img) {
@@ -81,9 +81,9 @@ export async function publishPost(post: Post) {
 
     let caption = post.message;
     caption += "\n\n"; // 2 Newline
-    caption += `Posted by: [${post.author}](${post.author_link})`;    
+    caption += `Posted by: [${post.author}](${post.author_link})`;
     caption += "\n\n"; // 2 Newline
-    caption += "#cute #moe #anime #artwork #mastoart #dotmoe";
+    caption += dotMOE.TAGS;
 
     try {
         console.log("Publishing post....");

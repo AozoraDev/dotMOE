@@ -15,7 +15,7 @@ import { resolveImages, postValidation } from "handlers/facebook";
 import { isFacebookPostExist, savePost } from "utils/db";
 import "utils/console";
 
-import type { WebhookFeed, WebhookChanges } from "handlers/facebook";
+import type { WebhookFeed, WebhookChanges } from "types";
 
 const app = express();
 app.enable("trust proxy");
@@ -52,7 +52,7 @@ app.post(endpoint,
             .digest("hex");
         
         /** Body signature for validating */
-        const signature = req.headers["x-hub-signature-256"] as (string | undefined);
+        const signature = req.headers["x-hub-signature-256"];
         const expectedSignature = "sha256=" + hmac;
 
         // Throw error if signature not match

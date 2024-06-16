@@ -9,6 +9,7 @@
 import Zip from "adm-zip";
 import path from "path";
 import sizeOf from "image-size";
+import { WebP } from "enums";
 import { $ } from "bun";
 import { tmpdir } from "node:os";
 import { existsSync, mkdtempSync, rmSync } from "fs";
@@ -40,10 +41,8 @@ export default class CWebP {
     /** Current platform's architecture */
     private arch?: ("aarch64" | "arm64" | "x86-64");
 
-    /** Path to the downloaded webp binaries */
-    private downloadedPath = path.join(process.cwd(), "webp-bin");
     /** Temporary dir for temporary saving converted image */
-    private tempDir = mkdtempSync(path.join(tmpdir(), "cwebp-"));
+    private readonly tempDir = mkdtempSync(path.join(tmpdir(), "cwebp-"));
 
     /**
      * Create new instance for converting image to webp
@@ -53,7 +52,7 @@ export default class CWebP {
      */
     public constructor(buf: ArrayBuffer, configs?: Configs) {
         const defaultConfigs: Configs = {
-            quality: 80,
+            quality: WebP.QUALITY,
             cwebpPath: "",
             options: []
         }
@@ -61,7 +60,7 @@ export default class CWebP {
         this.buf = buf;
         this.size = sizeOf(new Uint8Array(buf));
         this.configs = { ...defaultConfigs, ...configs }
-        this.cwebpPath = this.configs.cwebpPath || Bun.which("cwebp") || path.join(process.cwd(), "webp", "bin", "cwebp");
+        this.cwebpPath = this.configs.cwebpPath || Bun.which("cwebp") || WebP.LOCAL_CWEBP_PATH;
     }
 
     /** Get image original width */
@@ -86,16 +85,13 @@ export default class CWebP {
             await this.extractExecutable();
 
             // Update path
-            this.cwebpPath = path.join(process.cwd(), "webp", "bin", "cwebp");
+            this.cwebpPath = WebP.LOCAL_CWEBP_PATH;
             console.log("WebP downloaded and extracted!");
         }
     }
 
     /** A process to execute the compression */
     private async execute() {
-        // Add exe to the executable if windows
-        if (this.platform == "windows") this.cwebpPath += ".exe";
-        
         /** Path to the temporary image */
         const imagePath = path.join(this.tempDir, "image");
         /** Path to the temporary converted image */
@@ -198,7 +194,7 @@ export default class CWebP {
             if (!this.arch || !this.platform) throw new Error("WebP binaries is not available for your platform!");
 
             const buf = await fetch(url).then(res => res.arrayBuffer()) // Get the file as ArrayBuffer
-            await Bun.write(this.downloadedPath, buf); // And then write it as file
+            await Bun.write(WebP.DOWNLOADED_PATH, buf); // And then write it as file
         } catch (e) {
             throw e;
         }
@@ -209,11 +205,11 @@ export default class CWebP {
         if (process.platform == "linux" || process.platform == "darwin") { // Linux and Mac
 
             if (!Bun.which("tar")) throw new Error("tar executable not found. That's weird... are you even sure that your OS is Unix-like?");
-            await $`tar -xzf "${this.downloadedPath}"`.quiet();
+            await $`tar -xzf "${WebP.DOWNLOADED_PATH}"`.quiet();
 
         } else if (process.platform == "win32") { // Windows
 
-            const zip = new Zip(this.downloadedPath);
+            const zip = new Zip(WebP.DOWNLOADED_PATH);
             zip.extractAllTo(process.cwd());
             
         } else { // Nothing else
@@ -221,7 +217,7 @@ export default class CWebP {
         }
 
         // Remove the downloaded binaries
-        await rm(this.downloadedPath);
+        await rm(WebP.DOWNLOADED_PATH);
         // After that, rename the extracted folder
         await rename(
             path.join(process.cwd(), `libwebp-${this.getWebPVersion()}-${this.platform}-${this.arch}`),
@@ -231,6 +227,6 @@ export default class CWebP {
 
     /** Get WebP version */
     private getWebPVersion() {
-        return "1.4.0";
+        return WebP.VERSION;
     }
 }

@@ -25,14 +25,14 @@ db.run(
     INSERT OR IGNORE INTO Version (id, version) VALUES (1, 1)`
 );
 // Token table //
-db.query(
+db.run(
     `CREATE TABLE IF NOT EXISTS Token (
         id VARCHAR(20) PRIMARY KEY,
         token VARCHAR(255)
     )`
-).run();
+);
 // Delayed Posts table //
-db.query(
+db.run(
     `CREATE TABLE IF NOT EXISTS DelayedPosts (
         post_id VARCHAR(50) PRIMARY KEY,
         author VARCHAR(50),
@@ -40,24 +40,24 @@ db.query(
         message TEXT,
         attachments TEXT
     )`
-).run();
+);
 
 // Check migration before starting everything
-const migPath = path.join(process.cwd(), "db-migrations")
-const migFiles = readdirSync(migPath);
-migFiles.sort((a, b) => parseInt(a.split(".")[0]) - parseInt(b.split(".")[0])); // Sort it
+const migrationsPath = path.join(process.cwd(), "db-migrations")
+const migrationsFiles = readdirSync(migrationsPath);
+migrationsFiles.sort((a, b) => parseInt(a.split(".")[0]) - parseInt(b.split(".")[0])); // Sort it
 
-const latestMig = parseInt(migFiles.at(-1) as string); // Will always have value
-if (getDBVersion() < latestMig) {
+const latestMigration = parseInt(migrationsFiles.at(-1) || "1");
+if (getDBVersion() < latestMigration) {
     console.warn(`Database version is obselete (${getDBVersion()}). Will start migration now!`);
 
     // TODO:
     // Should be read the range between current db version and the latest migration file.
     // But since the migration file here is just one, i don't need to think about it for now.
-    for (const mig of migFiles) {
-        console.log(`Executing ${mig}...`);
+    for (const migration of migrationsFiles) {
+        console.log(`Executing ${migration}...`);
 
-        const update = await import(path.join(migPath, mig));
+        const update = await import(path.join(migrationsPath, migration));
         update.default();
     }
 
@@ -68,9 +68,8 @@ if (getDBVersion() < latestMig) {
  * Get database version
  */
 function getDBVersion() {
-    const version = db.query(
-        `SELECT version FROM Version`
-    ).get() as { version: number };
+    const version = db.query("SELECT version FROM Version")
+        .get() as { version: number }; // Will always have value
 
     return version.version;
 }
@@ -81,9 +80,8 @@ function getDBVersion() {
  * @param version - New database version
  */
 export function updateDBVersion(version: number) {
-    db.prepare(
-        `UPDATE Version SET version=? WHERE id=1`
-    ).run(version);
+    db.prepare("UPDATE Version SET version=? WHERE id=1")
+        .run(version);
 }
 
 /**
@@ -94,9 +92,9 @@ export function updateDBVersion(version: number) {
  */
 export function getToken(id: string) {
     const res = db.query("SELECT token FROM Token WHERE id = ?")
-        .get(id) as Record<string, string>;
+        .get(id) as ({ token: string } | null);
     
-    return res?.["token"] as (string | null);
+    return res?.token;
 }
 
 /**
@@ -157,5 +155,5 @@ export function isFacebookPostExist(postID: string) {
         `SELECT post_id FROM DelayedPosts WHERE post_id = ?`
     ).get(postID) as (string | null);
 
-    return (post) ? true : false;
+    return !!post;
 }
