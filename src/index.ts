@@ -25,14 +25,15 @@ app.use(express.urlencoded({ extended: true }));
 /** The endpoint used by the receiver where the webhook sends data. */
 const endpoint = Bun.env["ENDPOINT"] || "/dotmoe";
 
+// Facebook Only //
 // See [https://developers.facebook.com/docs/graph-api/webhooks/getting-started#configure-webhooks-product] for more information
-app.get(endpoint, (req, res) => {
+app.get(endpoint + "/facebook", (req, res) => {
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
     
     if (mode && token) {
-        // AUTH_TOKEN env is your random numbers for authenticating webhook
+        // AUTH_TOKEN env is your random token for authenticating webhook
         if (mode === "subscribe" && token === Bun.env["AUTH_TOKEN"]) {
             console.log("Webhook registered!");
             res.status(200).send(challenge);
@@ -44,25 +45,23 @@ app.get(endpoint, (req, res) => {
     }
 });
 
-// Webhook receiver
-app.post(endpoint,
+// Webhook receiver //
+// Facebook //
+app.post(endpoint + "/facebook",
     express.json({ verify: (req, _res, buf) => {
         const hmac = crypto.createHmac("sha256", Bun.env["APP_TOKEN"] || "0")
             .update(buf)
             .digest("hex");
         
-        /** Body signature for validating */
         const signature = req.headers["x-hub-signature-256"];
         const expectedSignature = "sha256=" + hmac;
 
-        // Throw error if signature not match
         if (signature !== expectedSignature) throw new Error("Signature not match");
     } }),
     async (req, res) => {
         // Gotta tell the webhook first that we receive the post
         res.sendStatus(200);
         
-        /** The body of received post */
         const body: WebhookFeed = req.body;
         // Throw error if body is empty or body doesn't have entry and object property or the value of object property is not page
         if (!body || !(body.entry && body.object) || body.object !== "page") {
@@ -74,7 +73,6 @@ app.post(endpoint,
         // Stop if the current post ID is already exist
         if (isFacebookPostExist(data.value.post_id)) return;
 
-        // Save post to the database if passed validation
         if (postValidation(data)) {
             console.log(`New post from ${data.value.from.name}`);
             savePost({

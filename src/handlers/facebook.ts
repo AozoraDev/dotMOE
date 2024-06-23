@@ -4,8 +4,7 @@
  * @file
  * @author AozoraDev
  */
-import * as db from "utils/db";
-import type { WebhookChanges, PostAttachments, PostImages } from "types";
+import type { WebhookChanges } from "types";
 
 /**
  * Resolve Facebook images to get (hopefully) high-quality images.
@@ -14,41 +13,18 @@ import type { WebhookChanges, PostAttachments, PostImages } from "types";
  * @returns URLs of resolved images
  */
 export async function resolveImages(post: WebhookChanges) {
-    /** Contains URLs of high quality versions of the resolved images. */
     const resolved: string[] = [];
 
     // Multiple photos
     if (post.value.item == "status" && post.value.photos) {
-        // Get all attachments from the post
-        const result = await fetch(`https://graph.facebook.com/v18.0/${post.value.post_id}/attachments?access_token=${db.getToken(post.value.from.id)}`)
-            .then(res => res.json() as Promise<PostAttachments>)
-            .catch(console.error);
-        if (!result || result.error) throw new Error(result?.error?.message || "Failed to fetch image.");
-
-        /** All attachments in a post, limited to 4. */
-        const attachments = result.data[0]
-            .subattachments?.data
-            .slice(0, 4);
-        
-        // Looping for getting (hopefully) higher quality images
-        if (attachments) for (const attachment of attachments) {
-            const photo = await fetch(`https://graph.facebook.com/v18.0/${attachment.target.id}?fields=images&access_token=${db.getToken(post.value.from.id)}`)
-                .then(res => res.json() as Promise<PostImages>)
-                .catch(console.error);
-            // Jump to the next image if the next request is error
-            if (!photo || photo.error) continue;
-
-            resolved.push(photo.images[0].source);
+        for (const photo of post.value.photos) {
+            resolved.push(photo);
         }
     }
 
     // Single photo
     else if (post.value.item == "photo" && post.value.photo_id) {
-        const photo = await fetch(`https://graph.facebook.com/v18.0/${post.value.photo_id}?fields=images&access_token=${db.getToken(post.value.from.id)}`)
-            .then(res => res.json() as Promise<PostImages>)
-            .catch(console.error);
-        
-        if (photo && !photo.error) resolved.push(photo.images[0].source);
+        resolved.push(post.value.link);
     }
 
     return resolved;

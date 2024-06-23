@@ -4,13 +4,11 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
+    "build": "bun build.js",
     "dev:start": "bun src/index.ts",
     "dev:service": "bun src/service.ts",
-    "dev:setup": "bun src/setup.ts",
-    "build": "bun build.js",
     "start": "./dist/index.js",
-    "service": "./dist/service.js",
-    "setup": "./dist/setup.js"
+    "service": "./dist/service.js"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.5",

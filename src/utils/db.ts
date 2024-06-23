@@ -85,30 +85,6 @@ export function updateDBVersion(version: number) {
 }
 
 /**
- * Get saved access token from page ID
- * 
- * @param id - Facebook Page ID
- * @returns Facebook Page access token
- */
-export function getToken(id: string) {
-    const res = db.query("SELECT token FROM Token WHERE id = ?")
-        .get(id) as ({ token: string } | null);
-    
-    return res?.token;
-}
-
-/**
- * Insert or update access token from Page ID
- * 
- * @param id - Facebook Page ID
- * @param token - Access token
- */
-export function setToken(id: string, token: string) {
-    db.prepare("INSERT OR REPLACE INTO Token (id, token) VALUES (?, ?)")
-        .run(id, token);
-}
-
-/**
  * Save a post to the database
  * 
  * @param post - Post data object

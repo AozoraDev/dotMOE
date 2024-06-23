@@ -28,12 +28,10 @@ bun install
    - `AUTH_TOKEN` is a random token to pair the Facebook Webhook server to your receiver. Make sure this token is hard to figure out so that no other webhooks connect to your receiver.
    - `APP_TOKEN` is your Facebook application token. This is needed for post payload validation.
    - `VISIBILITY` is the visibility of the post. It can be `public`, `private`, `direct`, and `unlisted`. If this variable does not exist, `public` will be used by default.
-4. Run the setup to initiate. This only needs to be run once unless you want to add a new page token.
-```
-bun run dev:setup
-```
-5. Then enter your Facebook page token. [Check this out](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/get-long-lived/) for a tutorial on how to get page token.
-6. Now you are ready to go!
+
+4. Add your server to Facebook webhook using Page product. See [this](https://developers.facebook.com/docs/graph-api/webhooks/getting-started) for more information.
+
+5. Now you are ready to go.
 
 ## License
 ```
