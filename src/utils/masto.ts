@@ -44,14 +44,12 @@ export async function uploadImages(urls: string[]) {
             continue;
         }
 
-        // Optimizing the image...
         const webp = new CWebP(img);
         if (webp.getWidth() > 3840) { // Mastodon has image size limit.
             webp.resize(2000, 0); // Resize the width to 2000 if the image is oversize
         }
         const webpImage = await webp.toBunFile();
 
-        // And then upload it
         console.log("Uploading image to Mastodon instance...");
         await client.v2.media.create({
             /** @todo Error need to be ignored since Blob in Bun and Node is different */
