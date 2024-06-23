@@ -4,7 +4,7 @@ export interface Post {
     author: string,
     author_link: string,
     message: string,
-    attachments: string
+    attachments: string[]
 }
 
 // Facebook //

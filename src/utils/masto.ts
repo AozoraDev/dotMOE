@@ -74,7 +74,7 @@ export async function uploadImages(urls: string[]) {
  * @throws {Error} The post failed to upload or the saved post has no attachments
  */
 export async function publishPost(post: Post) {
-    const attachments = await uploadImages(post.attachments.split("|"));
+    const attachments = await uploadImages(post.attachments);
     if (!attachments.length) throw new Error("The post has no attachments.");
 
     let caption = post.message;

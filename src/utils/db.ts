@@ -99,7 +99,7 @@ export function savePost(post: Post) {
         post.author,
         post.author_link,
         post.message,
-        post.attachments
+        post.attachments.join("|")
     );
 }
 
