@@ -80,7 +80,8 @@ app.post(endpoint + "/facebook",
                 author: data.value.from.name,
                 author_link: "https://facebook.com/" + data.value.from.id,
                 message: data.value.message as string, // It will always string because postValidation will check it
-                attachments: (await resolveImages(data)) // Since sqlite doesn't support array type, we need to serialize it to string
+                attachments: (await resolveImages(data)),
+                provider: "Facebook"
             });
         }
     }

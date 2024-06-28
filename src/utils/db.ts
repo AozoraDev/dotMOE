@@ -9,7 +9,7 @@
 import path from "path";
 import { readdirSync } from "node:fs";
 import { Database } from "bun:sqlite";
-import type { Post } from "types";
+import type { Post, PostSQLite } from "types";
 
 const db = new Database("database.db");
 
@@ -43,9 +43,9 @@ db.run(
 );
 
 // Check migration before starting everything
-const migrationsPath = path.join(process.cwd(), "db-migrations")
+const migrationsPath = path.join(process.cwd(), "db-migrations"); 
 const migrationsFiles = readdirSync(migrationsPath);
-migrationsFiles.sort((a, b) => parseInt(a.split(".")[0]) - parseInt(b.split(".")[0])); // Sort it
+migrationsFiles.sort();
 
 const latestMigration = parseInt(migrationsFiles.at(-1) || "1");
 if (getDBVersion() < latestMigration) {
@@ -92,14 +92,15 @@ export function updateDBVersion(version: number) {
 export function savePost(post: Post) {
     db.prepare(
         `INSERT OR IGNORE INTO DelayedPosts
-        (post_id, author, author_link, message, attachments)
-        VALUES (?, ?, ?, ?, ?)`
+        (post_id, author, author_link, message, attachments, provider)
+        VALUES (?, ?, ?, ?, json_array(?), ?)`
     ).run(
         post.post_id,
         post.author,
         post.author_link,
         post.message,
-        post.attachments.join("|")
+        post.attachments.join(", "),
+        post.provider
     );
 }
 
@@ -111,7 +112,7 @@ export function savePost(post: Post) {
  */
 export function getFirstPost() {
     const data = db.prepare("SELECT * FROM DelayedPosts")
-        .get() as (Post & { id: number } | null);
+        .get() as (PostSQLite & { id: number } | null);
     
     // Delete the data after fetching
     if (data) db.prepare(`DELETE FROM DelayedPosts WHERE id = ?`)

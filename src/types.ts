@@ -3,8 +3,19 @@ export interface Post {
     post_id: string,
     author: string,
     author_link: string,
+    provider: string,
     message: string,
     attachments: string[]
+}
+
+export interface PostSQLite extends Omit<Post, "attachments"> {
+    attachments: string
+}
+
+// Real-CUGAN
+export interface iRealCUGAN {
+    MAGIC_NUMBERS: { [key: string]: string },
+    USE_CUGAN: string[]
 }
 
 // Facebook //

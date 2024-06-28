@@ -84,7 +84,6 @@ export default class CWebP {
             console.log("Extracting binaries...");
             await this.extractExecutable();
 
-            // Update path
             this.cwebpPath = WebP.LOCAL_CWEBP_PATH;
             console.log("WebP downloaded and extracted!");
         }
@@ -97,12 +96,7 @@ export default class CWebP {
         /** Path to the temporary converted image */
         const webpImagePath = path.join(this.tempDir, "image.webp");
         
-        // Write the buffer to file
-        try {
-            await Bun.write(imagePath, this.buf);
-        } catch (e) {
-            throw new Error("Cannot access the temporary dir");
-        }
+        await Bun.write(imagePath, this.buf);
 
         const args = [
             `"${this.cwebpPath}"`, // Executable
@@ -188,16 +182,10 @@ export default class CWebP {
             ? `https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${this.getWebPVersion()}-windows-x64.zip`
             : `https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${this.getWebPVersion()}-${this.platform}-${this.arch}.tar.gz`;
 
+        if (!this.arch || !this.platform) throw new Error("WebP binaries is not available for your platform!");
         // Download the binaries
-        try {
-            // Check if arch and platform exists
-            if (!this.arch || !this.platform) throw new Error("WebP binaries is not available for your platform!");
-
-            const buf = await fetch(url).then(res => res.arrayBuffer()) // Get the file as ArrayBuffer
-            await Bun.write(WebP.DOWNLOADED_PATH, buf); // And then write it as file
-        } catch (e) {
-            throw e;
-        }
+        const buf = await fetch(url).then(res => res.arrayBuffer());
+        await Bun.write(WebP.DOWNLOADED_PATH, buf);
     }
 
     /** Extract the downloaded binaries */
@@ -216,9 +204,7 @@ export default class CWebP {
             throw new Error("WebP binaries not available for your platform!");
         }
 
-        // Remove the downloaded binaries
         await rm(WebP.DOWNLOADED_PATH);
-        // After that, rename the extracted folder
         await rename(
             path.join(process.cwd(), `libwebp-${this.getWebPVersion()}-${this.platform}-${this.arch}`),
             path.join(process.cwd(), "webp")

@@ -17,8 +17,9 @@ export async function resolveImages(post: WebhookChanges) {
 
     // Multiple photos
     if (post.value.item == "status" && post.value.photos) {
-        for (const photo of post.value.photos) {
-            resolved.push(photo);
+        for (let i = 0; i < 4; i++) { // Limit images to 4
+            const photo: (string | undefined) = post.value.photos[i];
+            if (photo) resolved.push(photo);
         }
     }
 
@@ -37,7 +38,7 @@ export async function resolveImages(post: WebhookChanges) {
  * @returns `true` if post object is passed validation, `false` if otherwise.
  */
 export function postValidation(post: WebhookChanges) {
-    /** A regex for checking if a URL is exist */
+    /** URL validation regex */
     const regex = /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/g;
 
     /** The data must be of type post */

@@ -10,19 +10,23 @@
  * @author AozoraDev
  */
 
-import { publishPost } from "utils/masto";
+import { publishPost } from "mastodon";
 import { getFirstPost } from "utils/db";
+import type { Post } from "types";
 import "utils/console";
 
 (async function main() {
-    /** Current post from the database that gonna be posted. */
-    let post = getFirstPost();
-    // If post is empty, just exit already
+    const post = getFirstPost();
     if (!post) process.exit(0);
+
+    const resolved: Post = {
+        ...post,
+        attachments: JSON.parse(post.attachments)
+    }
 
     try {
         console.log(`Publishing post from ${post.author}...`);
-        const status = await publishPost(post);
+        const status = await publishPost(resolved);
         console.log(`Published with id ${status.id}!`);
     } catch (err) {
         console.error(err);

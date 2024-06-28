@@ -1,4 +1,5 @@
 import path from "path";
+import type { iRealCUGAN } from "types";
 
 // WebP
 export const WebP = {
@@ -13,4 +14,15 @@ export const WebP = {
 export const dotMOE = {
     INSTANCE_URL: "https://sakurajima.moe",
     TAGS: "#cute #moe #anime #artwork #mastoart #dotmoe"
+}
+
+// Real-CUGAN
+export const RealCUGAN: iRealCUGAN = {
+    MAGIC_NUMBERS: {
+        jpeg: "FFD8FFEE",
+        jpg: "FFD8FFE0",
+        png: "89504E47",
+        webp: "52494646"
+    },
+    USE_CUGAN: ["Facebook"]
 }
