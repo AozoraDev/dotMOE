@@ -3,7 +3,7 @@ import { rmSync } from "fs";
 
 console.log("Building...");
 const config = {
-    entrypoints: ["src/index.ts", "src/setup.ts", "src/service.ts"],
+    entrypoints: ["src/index.ts", "src/service.ts"],
     outdir: "dist",
     //minify: true,
     splitting: true
