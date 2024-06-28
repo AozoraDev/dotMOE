@@ -1,6 +1,6 @@
 {
   "name": "dotmoe",
-  "version": "1.7",
+  "version": "1.8",
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
