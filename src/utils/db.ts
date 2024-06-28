@@ -93,13 +93,13 @@ export function savePost(post: Post) {
     db.prepare(
         `INSERT OR IGNORE INTO DelayedPosts
         (post_id, author, author_link, message, attachments, provider)
-        VALUES (?, ?, ?, ?, json_array(?), ?)`
+        VALUES (?, ?, ?, ?, ?, ?)`
     ).run(
         post.post_id,
         post.author,
         post.author_link,
         post.message,
-        post.attachments.join(", "),
+        JSON.stringify(post.attachments),
         post.provider
     );
 }
