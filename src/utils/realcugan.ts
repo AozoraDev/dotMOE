@@ -33,7 +33,7 @@ export default async function(buf: ArrayBuffer) {
     type = "." + type; // Add dot at the first
 
     try {
-        await $`${exe} -i ${outPath} -o ${outPath + type} -n 2`;
+        await $`${exe} -i ${outPath} -o ${outPath + type} -n 2 -t 64 -j 2:2:2 -g -1`;
 
         const outBuf = await Bun.file(outPath + type).arrayBuffer();
         return outBuf;
