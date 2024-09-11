@@ -15,7 +15,10 @@ import { getFirstPost } from "utils/db";
 import type { Post } from "types";
 import "utils/console";
 
-(async function main() {
+const maxTries = 3;
+let currentTries = 0;
+
+async function main() {
     const post = getFirstPost();
     if (!post) process.exit(0);
 
@@ -30,10 +33,18 @@ import "utils/console";
         console.log(`Published with id ${status.id}!`);
     } catch (err) {
         console.error(err);
-        console.error("Publishing failed. Will skipping this one and try with another post.");
-        return main();
+
+        currentTries++;
+        if (currentTries >= maxTries) {
+            console.error("Publishing failed and has reached the try limit. Execution will be stopped.");
+        } else {
+            console.error("Publishing failed. Will skipping this one and try with another post.");
+            return main();
+        }
     }
 
     // Exit if published
     process.exit(0);
-})();
+}
+
+main();
