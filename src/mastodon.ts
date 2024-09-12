@@ -87,7 +87,7 @@ export async function uploadImages(urls: string[], provider: string) {
  */
 export async function publishPost(post: Post) {
     const attachments = await uploadImages(post.attachments, post.provider);
-    if (!attachments.length) throw new Error("The post has no attachments.");
+    if (!attachments.length) throw new Error("The post has no attachments");
 
     let caption = post.message;
     caption += "\n\n"; // 2 Newline

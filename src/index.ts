@@ -2,11 +2,13 @@
 
 /**
  * This script works as a receiver of webhook data.
- * Any data that is received and passes the check will be stored in the "delayed.json" file for use by service.ts.
+ * Any data that is received and passes the check will be stored in the database for use by service.ts.
  * 
  * @file
  * @author AozoraDev
  */
+
+import type { WebhookFeed, WebhookChanges } from "types";
 
 import express from "express";
 import cors from "cors";
@@ -14,8 +16,6 @@ import crypto from "node:crypto";
 import { resolveImages, postValidation } from "handlers/facebook";
 import { isFacebookPostExist, savePost } from "utils/db";
 import "utils/console";
-
-import type { WebhookFeed, WebhookChanges } from "types";
 
 const app = express();
 app.enable("trust proxy");
@@ -63,7 +63,8 @@ app.post(endpoint + "/facebook",
         res.sendStatus(200);
         
         const body: WebhookFeed = req.body;
-        // Throw error if body is empty or body doesn't have entry and object property or the value of object property is not page
+        // Throw error if body is empty or body doesn't have entry and object property
+        // or the value of object property is not page
         if (!body || !(body.entry && body.object) || body.object !== "page") {
             throw new Error("Received data is empty or not from webhook.");
         }
