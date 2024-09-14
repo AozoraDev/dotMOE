@@ -106,7 +106,6 @@ export function savePost(post: Post) {
 
 /**
  * Get the first post from the database.
- * After fetching, the data will be deleted.
  * 
  * @return The first post from the table, `null` if not found
  */
