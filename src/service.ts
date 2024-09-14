@@ -11,7 +11,7 @@
  */
 
 import { publishPost } from "mastodon";
-import { getFirstPost } from "utils/db";
+import { getFirstPost, removePost } from "utils/db";
 import type { Post } from "types";
 import "utils/console";
 
@@ -43,7 +43,7 @@ async function main() {
         }
     }
 
-    // Exit if published
+    removePost(post.id);
     process.exit(0);
 }
 

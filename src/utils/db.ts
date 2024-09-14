@@ -113,12 +113,18 @@ export function savePost(post: Post) {
 export function getFirstPost() {
     const data = db.prepare("SELECT * FROM DelayedPosts")
         .get() as (PostSQLite & { id: number } | null);
-    
-    // Delete the data after fetching
-    if (data) db.prepare(`DELETE FROM DelayedPosts WHERE id = ?`)
-        .run(data.id);
 
     return data;
+}
+
+/**
+ * Remove post from database
+ * 
+ * @param id - Post ID on database
+ */
+export function removePost(id: number) {
+    db.prepare(`DELETE FROM DelayedPosts WHERE id = ?`)
+        .run(id);
 }
 
 /**
