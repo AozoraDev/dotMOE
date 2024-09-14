@@ -55,12 +55,13 @@ export async function uploadImages(urls: string[], provider: string) {
         }
 
         const webp = new CWebP(img);
-        if (!webp.getWidth) { // return 0 if not image file
+        if (!webp.size.width) { // return 0 if not image file
             console.error("Image is not an image file. Skipped!");
             webp.close();
             continue;
         }
-        if (webp.getWidth() > 3840) webp.resize(2000, 0); // Mastodon has image size limit
+        
+        if (webp.size.width > 3840) webp.resize(2000, 0); // Mastodon has image size limit
         const webpImage = await webp.toBunFile();
 
         console.log("Uploading image to Mastodon instance...");

@@ -18,6 +18,16 @@ export interface iRealCUGAN {
     USE_CUGAN: string[]
 }
 
+// CwebP //
+export interface WebPConfig {
+    /** The quality of compression. Default is 80 */
+    quality?: number,
+    /** cwebp executable path. Default is from $PATH or `webp` in cwd */
+    cwebpPath?: string
+    /** Additional options */
+    options?: string[]
+}
+
 // Facebook //
 export interface Error {
     error?: {

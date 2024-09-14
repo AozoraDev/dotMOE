@@ -11,19 +11,19 @@
     "service": "./dist/service.js"
   },
   "devDependencies": {
-    "@types/adm-zip": "^0.5.5",
     "@types/bun": "latest",
     "@types/cors": "^2.8.17",
+    "@types/decompress": "^4.2.7",
     "@types/express": "^4.17.21"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
-    "adm-zip": "^0.5.12",
     "cors": "^2.8.5",
-    "express": "^4.18.3",
+    "decompress": "^4.2.1",
+    "express": "^4.21.0",
     "image-size": "^1.1.1",
-    "masto": "^6.6.4"
+    "masto": "^6.8.0"
   }
 }

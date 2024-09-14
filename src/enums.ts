@@ -5,8 +5,6 @@ import type { iRealCUGAN } from "types";
 export const WebP = {
     QUALITY: 80,
     VERSION: "1.4.0",
-
-    DOWNLOADED_PATH: path.join(process.cwd(), "webp-bin"),
     LOCAL_CWEBP_PATH: path.join(process.cwd(), "webp", "bin", "cwebp")
 }
 
