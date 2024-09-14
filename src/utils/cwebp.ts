@@ -167,7 +167,18 @@ export default class CWebP {
 
     /** Extract the downloaded binaries */
     private async extractExecutable(buf: ArrayBuffer) {
-        await decompress(Buffer.from(buf), process.cwd())
+        await decompress(Buffer.from(buf), process.cwd(), {
+            // Fix zip-slip vulnerability
+            filter: file => {
+                const normalized = path.normalize(file.path)
+                return !(
+                    normalized.startsWith("..") ||
+                    path.isAbsolute(normalized) ||
+                    file.type === "symlink"
+                )
+            }
+        })
+
         await rename(
             path.join(process.cwd(), `libwebp-${this.getWebPVersion()}-${this.platform}-${this.arch}`),
             path.join(process.cwd(), "webp")
