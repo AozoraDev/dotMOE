@@ -25,6 +25,8 @@ app.use(express.urlencoded({ extended: true }));
 /** The endpoint used by the receiver where the webhook sends data. */
 const endpoint = Bun.env["ENDPOINT"] || "/dotmoe";
 
+app.get(endpoint, (_req, res) => res.redirect("https://sakurajima.moe/@dotmoe"));
+
 // Facebook Only //
 // See [https://developers.facebook.com/docs/graph-api/webhooks/getting-started#configure-webhooks-product] for more information
 app.get(endpoint + "/facebook", (req, res) => {
