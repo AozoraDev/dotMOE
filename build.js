@@ -6,7 +6,8 @@ const config = {
     entrypoints: ["src/index.ts", "src/service.ts"],
     outdir: "dist",
     //minify: true,
-    splitting: true
+    splitting: true,
+    target: "bun"
 }
 
 // Delete the dist folder
